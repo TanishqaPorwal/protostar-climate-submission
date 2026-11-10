@@ -43,6 +43,6 @@ jobs:
         run: |
           python code/export.py
           python code/policy_analysis.py
-          git diff --stat -- outputs/
-          git diff --unified=0 -- outputs/*.csv | head -40
+          git diff --stat -- outputs/ | sed 's/^/::notice::/'
+          git diff --unified=0 -- outputs/*.csv | grep '^[-+][^-+]' | sed -n '1,6s/^/::notice::/p' || true
           python code/compare_outputs.py

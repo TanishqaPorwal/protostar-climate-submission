@@ -8,12 +8,19 @@ city IDs, names or flags, fails.
 
 import io
 import json
+import os
 import subprocess
 import sys
 
 import pandas as pd
 
 TOL = 0.0101
+CI = os.environ.get("GITHUB_ACTIONS") == "true"
+
+
+def note(msg: str, level: str = "notice") -> None:
+    """Print; on GitHub Actions also as an annotation, which is visible without opening the log."""
+    print(f"::{level}::{msg}" if CI else f"  {msg}")
 
 
 def committed(path: str) -> str:
@@ -32,7 +39,7 @@ def compare_frames(new: pd.DataFrame, old: pd.DataFrame, label: str) -> list[str
             if bad.any():
                 problems.append(f"{label}.{col}: {bad.sum()} values differ, max {diff.max():.4f}")
             elif diff.max() > 0:
-                print(f"  {label}.{col}: {(diff > 0).sum()} values differ by at most {diff.max():.4f} (allowed)")
+                note(f"{label}.{col}: {(diff > 0).sum()} values differ by at most {diff.max():.4f} (allowed)")
         elif not a.astype(str).equals(b.astype(str)):
             problems.append(f"{label}.{col}: non-numeric values changed")
     return problems
@@ -44,11 +51,16 @@ def geo_frame(text: str) -> pd.DataFrame:
 
 
 problems = []
-for path in ["outputs/forecasts_wide.csv", "outputs/cdd_change_by_city.csv"]:
+try:
+  for path in ["outputs/forecasts_wide.csv", "outputs/cdd_change_by_city.csv"]:
     problems += compare_frames(pd.read_csv(path), pd.read_csv(io.StringIO(committed(path))), path)
-path = "outputs/forecasts.geojson"
-problems += compare_frames(geo_frame(open(path).read()), geo_frame(committed(path)), path)
+  path = "outputs/forecasts.geojson"
+  problems += compare_frames(geo_frame(open(path).read()), geo_frame(committed(path)), path)
+except Exception as e:  # report crashes as an annotation too
+  problems.append(f"comparison crashed: {type(e).__name__}: {e}")
 
 if problems:
+    for msg in problems:
+        note(msg, "error")
     sys.exit("Outputs changed:\n- " + "\n- ".join(problems))
 print("OK: rebuilt outputs/ match the committed files (within 0.01 rounding).")
