@@ -30,6 +30,10 @@ def committed(path: str) -> str:
 def compare_frames(new: pd.DataFrame, old: pd.DataFrame, label: str) -> list[str]:
     if list(new.columns) != list(old.columns) or len(new) != len(old):
         return [f"{label}: shape or columns changed ({new.shape} vs {old.shape})"]
+    # Row order is not part of the content: cdd_change_by_city.csv is sorted by a rounded
+    # percentage, and ties come out in a different order on different platforms.
+    key = [c for c in ("city_id", "year") if c in new.columns]
+    new, old = (f.sort_values(key).reset_index(drop=True) for f in (new, old))
     problems = []
     for col in new.columns:
         a, b = new[col], old[col]
