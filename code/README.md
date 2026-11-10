@@ -12,6 +12,7 @@ Run everything from the repository root. Python 3.14; `pip install -r code/requi
 | `backtest.py` | `compare`: every model we tried, on the same backtest → `experiments.csv`. `grid`: settings grid of the level + trend model → `grid_results.csv`. `bias`: the final model's mean signed error per origin → `bias_by_origin.csv`. | ~15 min / ~5 min / ~1 min |
 | `export.py` | Forecasts as `outputs/forecasts.geojson` (GIS, web maps) and `outputs/forecasts_wide.csv`. | seconds |
 | `policy_analysis.py` | Forecast change in cooling demand per city → `outputs/cdd_change_by_city.csv` (numbers in the Policy Idea). | seconds |
+| `compare_outputs.py` | Compares rebuilt `outputs/` with the committed files, allowing ±0.01 for cross-platform rounding (used by CI). | seconds |
 | `check_submission.py` | From the template: the same checks the challenge Space runs. | seconds |
 | `AGENTS.md` | From the template: instructions for AI agents (data rule), plus our team notes. | – |
 

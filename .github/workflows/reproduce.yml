@@ -37,8 +37,12 @@ jobs:
       - name: Look-ahead (leakage) test
         run: python code/check_leakage.py
 
+      # Outputs are rounded to 2 decimals, so platform floating-point differences can move a
+      # last digit by 0.01. Show any byte-level diff, then compare values with that tolerance.
       - name: Rebuild outputs/ and confirm they are unchanged
         run: |
           python code/export.py
           python code/policy_analysis.py
-          git diff --exit-code --stat -- outputs/
+          git diff --stat -- outputs/
+          git diff --unified=0 -- outputs/*.csv | head -40
+          python code/compare_outputs.py
