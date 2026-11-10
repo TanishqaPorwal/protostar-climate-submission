@@ -1,0 +1,71 @@
+cff-version: 1.2.0
+message: "If you use these forecasts or this code, please cite it as below, and cite the Lai & Dzombak source data listed under references."
+type: dataset
+title: "Carbon Copies: Protostar Climate Challenge Submission (U.S. city climate forecasts 2019-2025)"
+abstract: >-
+  Yearly forecasts of average temperature, total precipitation, hottest-day temperature and
+  cooling degree days for 210 U.S. cities, 2019-2025, made as of the end of 2018. Includes the
+  open forecasting code (level + regionally pooled trend; delta-method CDD from daily weather),
+  a rolling-origin backtest, a look-ahead (leakage) test and GIS-ready outputs.
+authors:
+  - given-names: Naina
+    family-names: Dhingra
+    affiliation: Carnegie Mellon University
+  - given-names: Mitra
+    family-names: Barve
+    affiliation: Carnegie Mellon University
+  - given-names: Janeshvar
+    family-names: Sivakumar
+    affiliation: Carnegie Mellon University
+  - given-names: Anav
+    family-names: Singh
+    affiliation: Carnegie Mellon University
+  - given-names: Tanishqa
+    family-names: Porwal
+    affiliation: Carnegie Mellon University
+date-released: "2026-11-10"
+license: CC-BY-4.0
+url: "https://huggingface.co/datasets/ndhingraa/protostar-climate-submission"
+repository: "https://huggingface.co/datasets/ndhingraa/protostar-climate-submission"
+keywords:
+  - climate
+  - forecasting
+  - cooling degree days
+  - protostar-climate-2026
+references:
+  - type: dataset
+    title: "Compiled historical daily temperature and precipitation data for selected 210 U.S. cities"
+    authors:
+      - given-names: Yuchuan
+        family-names: Lai
+      - given-names: David A.
+        family-names: Dzombak
+    publisher:
+      name: Carnegie Mellon University
+    year: 2019
+    doi: 10.1184/R1/7890488.v6
+  - type: dataset
+    title: "Historical changes of annual temperature and precipitation indices at selected 210 U.S. cities"
+    authors:
+      - given-names: Yuchuan
+        family-names: Lai
+      - given-names: David A.
+        family-names: Dzombak
+    publisher:
+      name: Carnegie Mellon University
+    year: 2019
+    doi: 10.1184/R1/7961012.v6
+  - type: article
+    title: "Use of historical data to assess regional climate change"
+    authors:
+      - given-names: Yuchuan
+        family-names: Lai
+      - given-names: David A.
+        family-names: Dzombak
+    journal: "Journal of Climate"
+    volume: 32
+    issue: 14
+    start: 4299
+    end: 4320
+    year: 2019
+    doi: 10.1175/JCLI-D-18-0630.1

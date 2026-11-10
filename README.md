@@ -12,11 +12,21 @@ configs:
   data_files:
   - split: test
     path: submission.csv
+- config_name: forecasts_wide
+  data_files:
+  - split: test
+    path: outputs/forecasts_wide.csv
+- config_name: cdd_change_by_city
+  data_files:
+  - split: test
+    path: outputs/cdd_change_by_city.csv
 ---
 
 # Carbon Copies: Protostar Climate Challenge Submission
 
 **Negative result:** no
+
+[![reproduce](https://github.com/TanishqaPorwal/protostar-climate-submission/actions/workflows/reproduce.yml/badge.svg)](https://github.com/TanishqaPorwal/protostar-climate-submission/actions/workflows/reproduce.yml): a GitHub Actions job rebuilds every result from this repository on a clean machine and fails if `submission.csv` or any output changes.
 
 Forecasts of yearly weather for 210 U.S. cities, 2019–2025, made as of the end of 2018 (no data that reveals 2019–2025 weather), for the [Protostar Challenge: Climate Risk Intelligence](https://huggingface.co/spaces/CMU-OSPO/protostar-challenge-climate-risk-intelligence).
 
@@ -142,11 +152,17 @@ We made this check after seeing the live score; the decision was made only on pr
   - **Station changes are flagged but not adjusted.** `coverage_and_stations` marks the 32 changes in 1989–2018, but there is no homogenized series, so every team must invent its own adjustment.
   - **No uncertainty in the scoring.** Point forecasts only. For noisy metrics like precipitation, the most useful output for planners is a range, and MAE rewards forecasting the median.
   - **Inconsistent edge values.** The extreme columns use ±inf for years with no data, while other columns use NaN.
+  - **The honor code can't be enforced at the source.** The training set stops at 2018, but the public KiltHub records it comes from have since been updated in place and now run to 2023. Anyone can download the answer years from the cited source, and nothing in the challenge detects it.
+  - **Unversioned citations point at the answers.** A KiltHub DOI without a version suffix resolves to the latest version, so a team that cites or downloads "the Lai & Dzombak data" without pinning `.v<N>` gets data that contains 2019–2023.
+  - **The method paper is paywalled.** Lai & Dzombak (2019, *J. Climate*), the method behind the dataset, was not openly accessible to us (HTTP 403). Teams can reuse the data but not easily the published method or results it would be compared against.
 - **What would fix it:**
   - Publish a boolean `valid_<metric>` column per city-year using the exact scoring rule, so training and scoring cannot drift apart.
   - Add a homogenized variant (e.g., NOAA's pairwise homogenization, or the offsets from Lai & Dzombak's method) alongside the raw threaded record.
   - Score a quantile or interval forecast (e.g., pinball loss) as an optional track.
   - Use NaN consistently, and add a machine-readable schema (units, missing-value conventions) to the dataset card.
+  - Publish a frozen, pre-2019 release of both KiltHub records with its own DOI, and cite only versioned DOIs in the challenge pages.
+  - Run a look-ahead test on finalists' code, like our `check_leakage.leak_test()`: rerun the model from a past origin with every later value scrambled and require identical forecasts. It certifies the data rule from the code alone, without trusting the README.
+  - Link an open preprint or author copy of the method paper from the dataset card.
   - Ship the daily data's derived products. The daily table is 10M rows, and most teams only need per-year summaries such as our CDD-if-warmer curves (2 MB). A small "derived" subset would make the daily record usable for teams without much compute.
   - For reuse: our `climate_lib.py` exposes one forecaster signature, a backtest scorer that reproduces the challenge formula, and `check_leakage.leak_test()`, which certifies any forecaster against look-ahead. Future editions could ship a shared harness like it, so teams compare models on the same backtest and organizers can verify the honor code automatically.
 
@@ -160,6 +176,9 @@ We made this check after seeing the live score; the decision was made only on pr
 | `outputs/forecasts.geojson` | One point per city with all forecasts and the change versus 1989–2018. Opens in QGIS, ArcGIS, geojson.io, kepler.gl |
 | `outputs/forecasts_wide.csv` | One row per city and year, a column per metric, with name, latitude and longitude |
 | `outputs/cdd_change_by_city.csv` | Forecast change in cooling demand per city (Policy Idea) |
+| `outputs/README.md` | **Data dictionary** for `submission.csv` and every output: column, type, unit, missing-value and coordinate conventions |
+| `CITATION.cff` | How to cite this work and the Lai & Dzombak source data (GitHub and Zenodo read it directly) |
+| `.github/workflows/reproduce.yml` | Continuous reproduction: reruns the pipeline and the leakage test, fails if any result changes |
 
 **Metric codes:** `annual_avg_temp` (°F), `total_precip_in` (inches), `hottest_day_temp` (°F), `cdd` (°F-days).
 **City IDs:** the station `ID` from the `city_info` table of the training dataset (e.g., Pittsburgh = `USW00094823`).
@@ -171,6 +190,8 @@ We made this check after seeing the live score; the decision was made only on pr
 3. `python code/check_submission.py` and `python code/check_leakage.py`
 4. `python code/export.py` and `python code/policy_analysis.py` write `outputs/`.
 5. Optional: `python code/backtest.py compare` (all experiments, ~15 min); `python code/prepare_data.py` re-downloads `data/` and rebuilds the CDD curves from the daily table.
+
+**Verified:** on 2026-11-10, from a fresh clone and a new virtual environment (Python 3.14.7, macOS), steps 1–4 reproduced every committed file byte for byte (`git status` clean afterwards). `submission.csv` SHA-256: `6fe9d23f7b36bda67ad13aab0ee2b4ec1e0e7a092c4aef33997f1e9eae7b62e5`. The same steps run automatically in [`.github/workflows/reproduce.yml`](.github/workflows/reproduce.yml) on every push.
 
 ## Data
 
